@@ -4,98 +4,78 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>YouTube Video Summarizer</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { background-color: #f0f2f5; }
-        .container { max-width: 800px; }
-        .keyword {
-            display: inline-block;
-            background-color: #e9ecef;
-            color: #495057;
-            padding: 0.4em 0.8em;
-            margin: 0.25em;
-            border-radius: 1rem;
-            font-weight: 500;
-        }
-        #results-card { display: none; }
-        #spinner { display: none; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background-color: #f4f4f9; color: #333; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .container { background: #fff; padding: 2rem; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 600px; text-align: center; }
+        h1 { color: #5a67d8; }
+        input[type="text"] { width: calc(100% - 20px); padding: 10px; margin-bottom: 1rem; border: 1px solid #ccc; border-radius: 5px; }
+        button { background-color: #5a67d8; color: #fff; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 1rem; transition: background-color 0.3s; }
+        button:disabled { background-color: #9fa8da; cursor: not-allowed; }
+        #results { margin-top: 2rem; text-align: left; background-color: #f9f9f9; padding: 1.5rem; border-radius: 5px; border: 1px solid #eee; }
+        #results h2 { margin-top: 0; color: #4c51bf; }
+        #summary-text { white-space: pre-line; line-height: 1.6; font-size: 1rem; }
+        .summary-content { background: white; padding: 1rem; border-radius: 5px; border-left: 4px solid #5a67d8; }
+        #spinner { display: none; margin: 1rem auto; width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #5a67d8; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
-    <div class="container my-5">
-        <div class="text-center mb-4">
-            <h1 class="display-5">YouTube Video Summarizer 🚀</h1>
-            <p class="lead text-muted">Paste a YouTube video link to get a concise summary and keywords.</p>
-        </div>
-
-        <div class="card p-4 shadow-sm">
-            <form id="summarize-form">
-                <div class="input-group mb-3">
-                    <input type="url" class="form-control form-control-lg" id="youtube_url" name="youtube_url" placeholder="http://googleusercontent.com/youtube.com/5..." required>
-                    <button type="submit" class="btn btn-primary btn-lg">Summarize</button>
-                </div>
-            </form>
-        </div>
-        
-        <div id="spinner" class="text-center my-4">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
+    <div class="container">
+        <h1>YouTube Video Summarizer</h1>
+        <form id="url-form">
+            <input type="text" id="youtube-url" name="url" placeholder="Paste YouTube video URL here" required>
+            <button type="submit" id="summarize-btn">Summarize</button>
+        </form>
+        <div id="spinner"></div>
+        <div id="results" style="display:none;">
+            <h2>Enhanced Summary</h2>
+            <div class="summary-content">
+                <div id="summary-text"></div>
             </div>
-            <p class="mt-2">Summarizing, this may take a moment...</p>
-        </div>
-        
-        <div id="error-alert" class="alert alert-danger mt-4" style="display: none;" role="alert"></div>
-
-        <div id="results-card" class="card mt-4 shadow-sm">
-            <div class="card-header">
-                <h3 id="video-title" class="mb-0"></h3>
-            </div>
-            <div class="card-body">
-                <h5 class="card-title">Summary</h5>
-                <p id="summary-text" class="card-text"></p>
-                <hr>
-                <h5 class="card-title">Keywords</h5>
-                <div id="keywords-container"></div>
-            </div>
+            <h2>Keywords</h2>
+            <p id="keywords-text"></p>
         </div>
     </div>
 
     <script>
-        document.getElementById('summarize-form').addEventListener('submit', async function(event) {
-            event.preventDefault();
-            document.getElementById('spinner').style.display = 'block';
-            document.getElementById('results-card').style.display = 'none';
-            document.getElementById('error-alert').style.display = 'none';
-            const formData = new FormData(event.target);
+        document.getElementById('url-form').addEventListener('submit', async function(event) {
+            event.preventDefault(); // Prevent page reload
+            
+            const url = document.getElementById('youtube-url').value;
+            const summarizeBtn = document.getElementById('summarize-btn');
+            const spinner = document.getElementById('spinner');
+            const resultsDiv = document.getElementById('results');
+
+            // Reset UI
+            summarizeBtn.disabled = true;
+            spinner.style.display = 'block';
+            resultsDiv.style.display = 'none';
+
             try {
                 const response = await fetch('/summarize', {
                     method: 'POST',
-                    body: formData
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url: url })
                 });
-                const result = await response.json();
-                document.getElementById('spinner').style.display = 'none';
-                if (result.error) {
-                    const errorAlert = document.getElementById('error-alert');
-                    errorAlert.textContent = result.error;
-                    errorAlert.style.display = 'block';
-                } else {
-                    document.getElementById('video-title').textContent = result.video_title;
-                    document.getElementById('summary-text').textContent = result.summary;
-                    const keywordsContainer = document.getElementById('keywords-container');
-                    keywordsContainer.innerHTML = '';
-                    result.keywords.forEach(keyword => {
-                        const span = document.createElement('span');
-                        span.className = 'keyword';
-                        span.textContent = keyword;
-                        keywordsContainer.appendChild(span);
-                    });
-                    document.getElementById('results-card').style.display = 'block';
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Something went wrong');
                 }
-            } catch (e) {
-                document.getElementById('spinner').style.display = 'none';
-                const errorAlert = document.getElementById('error-alert');
-                errorAlert.textContent = 'A network error occurred. Please try again.';
-                errorAlert.style.display = 'block';
+                
+                const data = await response.json();
+                
+                // Display results
+                document.getElementById('summary-text').innerHTML = data.summary.replace(/\n/g, '<br>');
+                document.getElementById('keywords-text').innerText = data.keywords;
+                resultsDiv.style.display = 'block';
+
+            } catch (error) {
+                alert('Error: ' + error.message);
+            } finally {
+                // Re-enable UI
+                summarizeBtn.disabled = false;
+                spinner.style.display = 'none';
             }
         });
     </script>

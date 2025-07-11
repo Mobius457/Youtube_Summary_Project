@@ -1,0 +1,40 @@
+# Core dependencies for YouTube Summarizer
+# These are required for all environments
+
+# YouTube video processing
+yt-dlp>=2025.6.30
+
+# Machine Learning and NLP
+transformers>=4.41.2
+torch>=2.3.1
+nltk>=3.8
+numpy>=1.26.4
+
+# Web framework
+Flask>=3.0.3
+
+# Environment and configuration
+python-dotenv>=1.0.1
+
+# HTTP requests and web scraping
+requests>=2.32.4
+beautifulsoup4>=4.13.4
+
+# YouTube API (optional but recommended)
+google-api-python-client>=2.0.0
+
+# Advanced NLP (optional)
+spacy>=3.7.0
+
+# Data handling
+pandas>=2.0.0
+
+# Caching (for future use)
+redis>=5.0.0
+
+# Security
+cryptography>=41.0.0
+
+# Utilities
+click>=8.0.0
+python-dateutil>=2.8.0

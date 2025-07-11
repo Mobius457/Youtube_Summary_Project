@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+
+{% block title %}Video Summary - {{ video_info.title }}{% endblock %}
+
+{% block meta_description %}Summary of "{{ video_info.title }}" by {{ video_info.channel }}. {{ summary[:150] }}...{% endblock %}
+
+{% block og_title %}{{ video_info.title }} - Summary{% endblock %}
+{% block og_description %}{{ summary[:200] }}...{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="summary-page">
+        <!-- Video Information Header -->
+        <div class="video-header">
+            <div class="video-info-card">
+                {% if video_info.thumbnail_url %}
+                <img src="{{ video_info.thumbnail_url }}" alt="Video thumbnail" class="video-thumbnail">
+                {% endif %}
+                <div class="video-details">
+                    <h1 class="video-title">{{ video_info.title }}</h1>
+                    <p class="video-channel">📺 {{ video_info.channel }}</p>
+                    {% if video_info.duration %}
+                    <p class="video-duration">⏱️ Duration: {{ video_info.duration }}</p>
+                    {% endif %}
+                    {% if video_info.view_count %}
+                    <p class="video-views">👁️ Views: {{ "{:,}".format(video_info.view_count) }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="summary-actions">
+                <button id="copy-summary-btn" class="action-btn primary">
+                    📋 Copy Summary
+                </button>
+                <button id="share-btn" class="action-btn">
+                    🔗 Share
+                </button>
+                <a href="{{ url_for('index') }}" class="action-btn">
+                    🏠 New Summary
+                </a>
+            </div>
+        </div>
+
+        <!-- Summary Content -->
+        <div class="summary-main">
+            <div class="summary-section">
+                <h2>📋 Summary</h2>
+                <div class="summary-content">
+                    <div class="summary-text">{{ summary | safe }}</div>
+                </div>
+                
+                {% if summary_stats %}
+                <div class="summary-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">Reading Time:</span>
+                        <span class="stat-value">{{ summary_stats.estimated_reading_time }} min</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Compression:</span>
+                        <span class="stat-value">{{ summary_stats.compression_ratio }}%</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Word Count:</span>
+                        <span class="stat-value">{{ summary_stats.summary_word_count }}</span>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Keywords Section -->
+            {% if keywords %}
+            <div class="keywords-section">
+                <h3>🏷️ Key Topics</h3>
+                <div class="keywords-container">
+                    {% for keyword in keywords %}
+                    <span class="keyword-tag">{{ keyword }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Key Points Section -->
+            {% if key_points %}
+            <div class="key-points-section">
+                <h3>🎯 Key Points</h3>
+                <ul class="key-points-list">
+                    {% for point in key_points %}
+                    <li class="key-point">{{ point }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+            <!-- Content Analysis -->
+            {% if content_type %}
+            <div class="analysis-section">
+                <h3>📊 Content Analysis</h3>
+                <div class="analysis-grid">
+                    <div class="analysis-item">
+                        <span class="analysis-label">Content Type:</span>
+                        <span class="analysis-value content-type-{{ content_type }}">
+                            {{ content_type.title() }}
+                        </span>
+                    </div>
+                    {% if confidence_score %}
+                    <div class="analysis-item">
+                        <span class="analysis-label">Confidence:</span>
+                        <span class="analysis-value">{{ "%.1f" | format(confidence_score * 100) }}%</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Original Video Link -->
+        <div class="video-link-section">
+            <h3>🔗 Original Video</h3>
+            <a href="{{ video_info.url }}" target="_blank" rel="noopener noreferrer" class="video-link">
+                Watch on YouTube
+                <span class="external-link-icon">↗️</span>
+            </a>
+        </div>
+
+        <!-- Disclaimer -->
+        <div class="disclaimer">
+            <p><small>
+                <strong>Disclaimer:</strong> This summary was generated using AI technology. 
+                While we strive for accuracy, please refer to the original video for complete information.
+                The summary is based on available captions and may not capture all nuances of the content.
+            </small></p>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+// Additional JavaScript for summary page functionality
+document.addEventListener('DOMContentLoaded', function() {
+    // Copy summary functionality
+    const copyBtn = document.getElementById('copy-summary-btn');
+    if (copyBtn) {
+        copyBtn.addEventListener('click', function() {
+            const summaryText = document.querySelector('.summary-text').textContent;
+            navigator.clipboard.writeText(summaryText).then(() => {
+                copyBtn.textContent = '✅ Copied!';
+                setTimeout(() => {
+                    copyBtn.innerHTML = '📋 Copy Summary';
+                }, 2000);
+            }).catch(() => {
+                alert('Failed to copy to clipboard');
+            });
+        });
+    }
+
+    // Share functionality
+    const shareBtn = document.getElementById('share-btn');
+    if (shareBtn) {
+        shareBtn.addEventListener('click', function() {
+            if (navigator.share) {
+                navigator.share({
+                    title: '{{ video_info.title }} - Summary',
+                    text: '{{ summary[:100] }}...',
+                    url: window.location.href
+                });
+            } else {
+                // Fallback: copy URL to clipboard
+                navigator.clipboard.writeText(window.location.href).then(() => {
+                    shareBtn.textContent = '✅ Link Copied!';
+                    setTimeout(() => {
+                        shareBtn.innerHTML = '🔗 Share';
+                    }, 2000);
+                });
+            }
+        });
+    }
+});
+</script>
+{% endblock %}
+{% endblock %}

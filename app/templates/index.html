@@ -1,83 +1,91 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube Video Summarizer</title>
-    <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background-color: #f4f4f9; color: #333; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
-        .container { background: #fff; padding: 2rem; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 600px; text-align: center; }
-        h1 { color: #5a67d8; }
-        input[type="text"] { width: calc(100% - 20px); padding: 10px; margin-bottom: 1rem; border: 1px solid #ccc; border-radius: 5px; }
-        button { background-color: #5a67d8; color: #fff; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 1rem; transition: background-color 0.3s; }
-        button:disabled { background-color: #9fa8da; cursor: not-allowed; }
-        #results { margin-top: 2rem; text-align: left; background-color: #f9f9f9; padding: 1.5rem; border-radius: 5px; border: 1px solid #eee; }
-        #results h2 { margin-top: 0; color: #4c51bf; }
-        #summary-text { white-space: pre-line; line-height: 1.6; font-size: 1rem; }
-        .summary-content { background: white; padding: 1rem; border-radius: 5px; border-left: 4px solid #5a67d8; }
-        #spinner { display: none; margin: 1rem auto; width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #5a67d8; border-radius: 50%; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>YouTube Video Summarizer</h1>
-        <form id="url-form">
-            <input type="text" id="youtube-url" name="url" placeholder="Paste YouTube video URL here" required>
-            <button type="submit" id="summarize-btn">Summarize</button>
-        </form>
-        <div id="spinner"></div>
-        <div id="results" style="display:none;">
-            <h2>Enhanced Summary</h2>
-            <div class="summary-content">
-                <div id="summary-text"></div>
+{% extends "base.html" %}
+
+{% block title %}YouTube Video Summarizer - AI-Powered Video Analysis{% endblock %}
+
+{% block meta_description %}Transform YouTube videos into concise summaries with our AI-powered tool. Get key insights, main points, and keywords from any video in seconds.{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="hero-section">
+        <h1 class="hero-title">🎬 YouTube Video Summarizer</h1>
+        <p class="hero-subtitle">Transform any YouTube video into a concise, insightful summary using advanced AI technology</p>
+    </div>
+
+    <div class="input-section">
+        <form id="url-form" class="url-form">
+            <div class="input-group">
+                <input type="text" id="youtube-url" name="url"
+                       placeholder="Paste YouTube video URL here (e.g., https://www.youtube.com/watch?v=...)"
+                       required
+                       class="url-input">
+                <button type="submit" id="summarize-btn" class="summarize-btn">
+                    <span class="btn-text">Summarize</span>
+                    <span class="btn-icon">🚀</span>
+                </button>
             </div>
-            <h2>Keywords</h2>
-            <p id="keywords-text"></p>
+            <div class="input-help">
+                <small>Supports YouTube.com, youtu.be, and embedded video URLs</small>
+            </div>
+        </form>
+    </div>
+
+    <div id="spinner" class="spinner-container">
+        <div class="spinner"></div>
+        <p class="spinner-text">Analyzing video content...</p>
+    </div>
+
+    <div id="results" class="results-section" style="display:none;">
+        <div class="results-header">
+            <h2>📋 Video Summary</h2>
+            <div class="results-actions">
+                <button id="copy-summary-btn" class="action-btn">📋 Copy</button>
+                <button id="share-btn" class="action-btn">🔗 Share</button>
+            </div>
+        </div>
+
+        <div class="summary-content">
+            <div id="summary-text" class="summary-text"></div>
+        </div>
+
+        <div class="keywords-section">
+            <h3>🏷️ Key Topics</h3>
+            <div id="keywords-container" class="keywords-container">
+                <p id="keywords-text" class="keywords-text"></p>
+            </div>
+        </div>
+
+        <div class="video-info-section">
+            <h3>📺 Video Information</h3>
+            <div id="video-info" class="video-info">
+                <!-- Video info will be populated by JavaScript -->
+            </div>
         </div>
     </div>
 
-    <script>
-        document.getElementById('url-form').addEventListener('submit', async function(event) {
-            event.preventDefault(); // Prevent page reload
-            
-            const url = document.getElementById('youtube-url').value;
-            const summarizeBtn = document.getElementById('summarize-btn');
-            const spinner = document.getElementById('spinner');
-            const resultsDiv = document.getElementById('results');
-
-            // Reset UI
-            summarizeBtn.disabled = true;
-            spinner.style.display = 'block';
-            resultsDiv.style.display = 'none';
-
-            try {
-                const response = await fetch('/summarize', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ url: url })
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || 'Something went wrong');
-                }
-                
-                const data = await response.json();
-                
-                // Display results
-                document.getElementById('summary-text').innerHTML = data.summary.replace(/\n/g, '<br>');
-                document.getElementById('keywords-text').innerText = data.keywords;
-                resultsDiv.style.display = 'block';
-
-            } catch (error) {
-                alert('Error: ' + error.message);
-            } finally {
-                // Re-enable UI
-                summarizeBtn.disabled = false;
-                spinner.style.display = 'none';
-            }
-        });
-    </script>
-</body>
-</html>
+    <div class="features-section">
+        <h2>✨ Features</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🤖</div>
+                <h3>AI-Powered</h3>
+                <p>Advanced natural language processing to extract key insights</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">⚡</div>
+                <h3>Fast & Efficient</h3>
+                <p>Get summaries in seconds, not minutes</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🎯</div>
+                <h3>Key Points</h3>
+                <p>Automatically identifies the most important topics and themes</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📱</div>
+                <h3>Mobile Friendly</h3>
+                <p>Works perfectly on all devices and screen sizes</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

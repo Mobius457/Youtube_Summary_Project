@@ -1,0 +1,71 @@
+Youtube_Summary_Project/
+├── app/
+│   ├── __init__.py                    # Flask app initialization
+│   ├── routes.py                      # Main route handlers
+│   ├── models/                        # NEW: Data models
+│   │   ├── __init__.py
+│   │   ├── video.py                   # Video data model
+│   │   └── summary.py                 # Summary data model
+│   ├── services/                      # NEW: Business logic layer
+│   │   ├── __init__.py
+│   │   ├── video_service.py           # Video processing orchestration
+│   │   ├── summary_service.py         # Summary generation orchestration
+│   │   └── cache_service.py           # Caching logic (optional)
+│   ├── utils/                         # Keep existing utilities
+│   │   ├── __init__.py
+│   │   ├── summarizer.py              # Core summarization logic
+│   │   ├── advanced_summarizer.py     # Enhanced summarization
+│   │   ├── transcript_fetcher.py      # Transcript extraction
+│   │   ├── youtube_api.py             # YouTube API integration
+│   │   ├── keyword_extractor.py       # Keyword extraction
+│   │   └── web_scraper.py             # Web scraping utilities
+│   ├── templates/
+│   │   ├── base.html                  # NEW: Base template
+│   │   ├── index.html                 # Main page
+│   │   ├── summary.html               # NEW: Dedicated summary page
+│   │   └── error.html                 # NEW: Error page
+│   ├── static/                        # NEW: Static assets
+│   │   ├── css/
+│   │   │   └── style.css              # Extracted CSS
+│   │   ├── js/
+│   │   │   └── main.js                # Extracted JavaScript
+│   │   └── images/
+│   │       └── favicon.ico
+│   └── api/                           # NEW: API endpoints (if expanding)
+│       ├── __init__.py
+│       └── v1/
+│           ├── __init__.py
+│           └── endpoints.py
+├── tests/                             # NEW: Test suite
+│   ├── __init__.py
+│   ├── test_utils/
+│   │   ├── test_summarizer.py
+│   │   ├── test_transcript_fetcher.py
+│   │   └── test_keyword_extractor.py
+│   ├── test_services/
+│   │   └── test_video_service.py
+│   └── test_routes.py
+├── docs/                              # NEW: Documentation
+│   ├── README.md
+│   ├── API.md
+│   └── DEPLOYMENT.md
+├── scripts/                           # NEW: Utility scripts
+│   ├── setup.py                       # Environment setup
+│   └── deploy.py                      # Deployment script
+├── config/                            # NEW: Enhanced configuration
+│   ├── __init__.py
+│   ├── development.py
+│   ├── production.py
+│   └── testing.py
+├── requirements/                      # NEW: Split requirements
+│   ├── base.txt                       # Core dependencies
+│   ├── development.txt                # Dev dependencies
+│   └── production.txt                 # Production dependencies
+├── .env.example                       # NEW: Environment template
+├── .gitignore                         # NEW: Git ignore rules
+├── config.py                          # Keep existing config
+├── requirements.txt                   # Keep for compatibility
+├── run.py                             # Keep existing runner
+├── Procfile                           # Keep for Heroku
+├── vercel.json                        # Keep for Vercel
+└── README.md                          # Keep existing

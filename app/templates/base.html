@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="{% block meta_description %}Summarize YouTube videos quickly and efficiently with AI-powered analysis{% endblock %}">
+    <meta name="keywords" content="{% block meta_keywords %}YouTube, video, summarizer, AI, transcript, summary{% endblock %}">
+    <meta name="author" content="YouTube Summarizer">
+    
+    <title>{% block title %}YouTube Video Summarizer{% endblock %}</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block extra_css %}{% endblock %}
+    
+    <!-- Open Graph meta tags for social sharing -->
+    <meta property="og:title" content="{% block og_title %}YouTube Video Summarizer{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}Summarize YouTube videos quickly and efficiently with AI-powered analysis{% endblock %}">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ request.url }}">
+    
+    <!-- Twitter Card meta tags -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="{% block twitter_title %}YouTube Video Summarizer{% endblock %}">
+    <meta name="twitter:description" content="{% block twitter_description %}Summarize YouTube videos quickly and efficiently with AI-powered analysis{% endblock %}">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        {% block header %}
+        <nav class="navbar">
+            <div class="nav-container">
+                <a href="{{ url_for('index') }}" class="nav-brand">
+                    <h1>📺 YouTube Summarizer</h1>
+                </a>
+                <div class="nav-menu">
+                    {% block navigation %}
+                    <a href="{{ url_for('index') }}" class="nav-link">Home</a>
+                    {% endblock %}
+                </div>
+            </div>
+        </nav>
+        {% endblock %}
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        {% block footer %}
+        <div class="footer-content">
+            <p>&copy; 2024 YouTube Video Summarizer. Built with ❤️ and AI.</p>
+            <div class="footer-links">
+                <a href="#" class="footer-link">Privacy Policy</a>
+                <a href="#" class="footer-link">Terms of Service</a>
+                <a href="#" class="footer-link">About</a>
+            </div>
+        </div>
+        {% endblock %}
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block extra_js %}{% endblock %}
+    
+    <!-- Analytics (placeholder for future) -->
+    {% block analytics %}{% endblock %}
+</body>
+</html>

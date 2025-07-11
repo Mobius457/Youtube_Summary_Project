@@ -268,6 +268,8 @@ def run_summarization(transcript, video_info=None):
 
     except Exception as e:
         print(f"Error in enhanced summarization: {e}")
+        import traceback
+        traceback.print_exc()
         # Fallback to simple summarization
         try:
             summarizer = pipeline("summarization", model="t5-base", tokenizer="t5-base", framework="pt")
